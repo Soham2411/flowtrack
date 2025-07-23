@@ -127,7 +127,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    # We'll add your deployed frontend URL here after deployment
+    "https://classy-yeot-b5805a.netlify.app",# We'll add your deployed frontend URL here after deployment
 ]
 
 CORS_ALLOW_CREDENTIALS = True
