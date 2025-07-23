@@ -3,23 +3,14 @@
   command = "npm run build"
   publish = "dist"
 
-# More explicit proxy rules for debugging
-[[redirects]]
-  from = "/api/test/*"
-  to = "https://flowtrack-backend-87cf.onrender.com/api/test/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/api/auth/*"
-  to = "https://flowtrack-backend-87cf.onrender.com/api/auth/:splat"
-  status = 200
-
+# API proxy (must come before SPA fallback)
 [[redirects]]
   from = "/api/*"
   to = "https://flowtrack-backend-87cf.onrender.com/api/:splat"
   status = 200
+  force = true
 
-# SPA fallback (must be last)
+# SPA fallback for all non-API routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
