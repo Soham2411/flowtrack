@@ -8,6 +8,7 @@
   to = "https://flowtrack-backend-87cf.onrender.com/api/:splat"
   status = 200
   force = true
+  headers = {X-From = "Netlify"}
 
 [[redirects]]
   from = "/*"
