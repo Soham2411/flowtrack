@@ -124,13 +124,19 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Configuration
+# Temporarily allow all origins for debugging
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Keep your specific origins too
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://classy-yeot-b5805a.netlify.app",# We'll add your deployed frontend URL here after deployment
+    "http://127.0.0.1:5173", 
+    "https://classy-yeot-b5805a.netlify.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Add more headers
 CORS_ALLOWED_HEADERS = [
     'accept',
     'accept-encoding',
@@ -141,6 +147,16 @@ CORS_ALLOWED_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+]
+
+# Add allowed methods
+CORS_ALLOWED_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
 # JWT Configuration
