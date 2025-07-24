@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .models import Category, Transaction
 from .serializers import UserRegistrationSerializer, CategorySerializer, TransactionSerializer
+from django.utils import timezone
 import random
 
 # Test endpoint (keep this)
@@ -16,6 +17,14 @@ def test_connection(request):
     return JsonResponse({
         'message': 'FlowTrack backend is connected!',
         'status': 'success'
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def health_check(request):
+    return JsonResponse({
+        'status': 'healthy',
+        'timestamp': timezone.now().isoformat()
     })
 
 # Authentication Views

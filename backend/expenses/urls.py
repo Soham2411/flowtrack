@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     # Test endpoint
     path('test/', views.test_connection, name='test_connection'),
+    path('health/', views.health_check, name='health_check'),
     
     # Authentication endpoints
     path('auth/register/', views.register, name='register'),
