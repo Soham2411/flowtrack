@@ -71,26 +71,26 @@ function AuthProvider({ children }) {
     }
   }
 
-  const register = async (username, email, password) => {
-    try {
-      const response = await axios.post('/auth/register/', { 
-        username, 
-        email, 
-        password,
-        first_name: '',
-        last_name: ''
-      })
-      const { access, user: userData } = response.data
-      setToken(access)
-      setUser(userData)
-      localStorage.setItem('token', access)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`
-      return { success: true }
-    } catch (error) {
-      return { success: false, error: error.response?.data || 'Registration failed' }
-    }
+  const register = async (username, email, password, confirmPassword) => {
+  try {
+    const response = await axios.post('/auth/register/', { 
+      username, 
+      email, 
+      password,
+      password_confirm: confirmPassword, // Add this field
+      first_name: '',
+      last_name: ''
+    })
+    const { access, user: userData } = response.data
+    setToken(access)
+    setUser(userData)
+    localStorage.setItem('token', access)
+    axios.defaults.headers.common['Authorization'] = `Bearer ${access}`
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.response?.data || 'Registration failed' }
   }
-
+}
   const logout = () => {
     setToken(null)
     setUser(null)
@@ -176,10 +176,13 @@ function LoginForm({ onSwitchToRegister }) {
 }
 
 // Register Component
+// Replace your RegisterForm component in App.jsx with this:
+
 function RegisterForm({ onSwitchToLogin }) {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('') // NEW FIELD
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { register } = useAuth()
@@ -189,9 +192,29 @@ function RegisterForm({ onSwitchToLogin }) {
     setLoading(true)
     setError('')
     
-    const result = await register(username, email, password)
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+    
+    const result = await register(username, email, password, confirmPassword) // Pass confirmPassword
     if (!result.success) {
-      setError(typeof result.error === 'object' ? JSON.stringify(result.error) : result.error)
+      // Better error handling
+      let errorMessage = result.error
+      if (typeof result.error === 'object') {
+        const errorMessages = []
+        for (const [field, messages] of Object.entries(result.error)) {
+          if (Array.isArray(messages)) {
+            errorMessages.push(`${field.replace('_', ' ')}: ${messages.join(', ')}`)
+          } else {
+            errorMessages.push(`${field.replace('_', ' ')}: ${messages}`)
+          }
+        }
+        errorMessage = errorMessages.join('. ')
+      }
+      setError(errorMessage)
     }
     setLoading(false)
   }
@@ -232,6 +255,17 @@ function RegisterForm({ onSwitchToLogin }) {
           />
         </div>
         
+        {/* NEW PASSWORD CONFIRMATION FIELD */}
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+        
         {error && <div className="error">{error}</div>}
         
         <button type="submit" disabled={loading} className="btn-primary">
@@ -248,7 +282,6 @@ function RegisterForm({ onSwitchToLogin }) {
     </div>
   )
 }
-
 // Chart Components
 function CategoryBreakdownChart({ transactions }) {
   const categoryData = transactions.reduce((acc, transaction) => {
