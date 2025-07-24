@@ -506,11 +506,26 @@ function Dashboard() {
   }, [])
 
   useEffect(() => {
-    if (selectedCategory === 'all') {
-      setFilteredTransactions(transactions)
-    } else {
-      setFilteredTransactions(transactions.filter(t => t.category_name === selectedCategory))
-    }
+    let filtered = transactions
+
+// Filter by category
+if (selectedCategory !== 'all') {
+  filtered = filtered.filter(t => t.category_name === selectedCategory)
+}
+
+// Filter by date range (if dateRange exists)
+if (dateRange && dateRange.start && dateRange.end) {
+  const startDate = new Date(dateRange.start)
+  const endDate = new Date(dateRange.end)
+  endDate.setHours(23, 59, 59, 999)
+  
+  filtered = filtered.filter(t => {
+    const transactionDate = new Date(t.date)
+    return transactionDate >= startDate && transactionDate <= endDate
+  })
+}
+
+setFilteredTransactions(filtered)
   }, [selectedCategory, transactions, dateRange])
 
   const fetchData = async () => {
