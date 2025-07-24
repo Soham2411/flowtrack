@@ -18,6 +18,8 @@ axios.defaults.baseURL = API_BASE_URL
 const AuthContext = createContext()
 
 // Auth Provider Component
+// Replace your AuthProvider component with this fixed version:
+
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(localStorage.getItem('token'))
@@ -36,12 +38,15 @@ function AuthProvider({ children }) {
           await axios.get('/categories/')
           // If categories call succeeds, token is valid
           setToken(storedToken)
-          // You can set a basic user object or leave it null
-          setUser({ username: 'user' }) // Simple user object
+          
+          // Get stored username or use fallback
+          const storedUsername = localStorage.getItem('username')
+          setUser({ username: storedUsername || 'user' })
         } catch (error) {
           console.log('Token invalid or expired, clearing auth')
           // Token is invalid, clear it
           localStorage.removeItem('token')
+          localStorage.removeItem('username') // Also clear username
           delete axios.defaults.headers.common['Authorization']
           setToken(null)
           setUser(null)
@@ -62,8 +67,9 @@ function AuthProvider({ children }) {
       const response = await axios.post('/auth/login/', { username, password })
       const { access, user: userData } = response.data
       setToken(access)
-      setUser(userData)
+      setUser(userData || { username }) // Use backend data or fallback to username
       localStorage.setItem('token', access)
+      localStorage.setItem('username', username) // Store username for session persistence
       axios.defaults.headers.common['Authorization'] = `Bearer ${access}`
       return { success: true }
     } catch (error) {
@@ -72,29 +78,32 @@ function AuthProvider({ children }) {
   }
 
   const register = async (username, email, password, confirmPassword) => {
-  try {
-    const response = await axios.post('/auth/register/', { 
-      username, 
-      email, 
-      password,
-      password_confirm: confirmPassword, // Add this field
-      first_name: '',
-      last_name: ''
-    })
-    const { access, user: userData } = response.data
-    setToken(access)
-    setUser(userData)
-    localStorage.setItem('token', access)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access}`
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: error.response?.data || 'Registration failed' }
+    try {
+      const response = await axios.post('/auth/register/', { 
+        username, 
+        email, 
+        password,
+        password_confirm: confirmPassword, 
+        first_name: '',
+        last_name: ''
+      })
+      const { access, user: userData } = response.data
+      setToken(access)
+      setUser(userData || { username }) // Use backend data or fallback to username
+      localStorage.setItem('token', access)
+      localStorage.setItem('username', username) // Store username for session persistence
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.response?.data || 'Registration failed' }
+    }
   }
-}
+
   const logout = () => {
     setToken(null)
     setUser(null)
     localStorage.removeItem('token')
+    localStorage.removeItem('username') // Clear username on logout
     delete axios.defaults.headers.common['Authorization']
   }
 
