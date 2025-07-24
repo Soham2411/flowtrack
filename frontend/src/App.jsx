@@ -511,7 +511,7 @@ function Dashboard() {
     } else {
       setFilteredTransactions(transactions.filter(t => t.category_name === selectedCategory))
     }
-  }, [selectedCategory, transactions])
+  }, [selectedCategory, transactions, dateRange])
 
   const fetchData = async () => {
     try {
