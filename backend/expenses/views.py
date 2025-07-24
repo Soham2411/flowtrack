@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .models import Category, Transaction
 from .serializers import UserRegistrationSerializer, CategorySerializer, TransactionSerializer
+import random
 
 # Test endpoint (keep this)
 @api_view(['GET'])
@@ -67,8 +68,41 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
     
+    # Color palette for categories
+    CATEGORY_COLORS = [
+        '#e74c3c',  # Red
+        '#3498db',  # Blue
+        '#9b59b6',  # Purple
+        '#27ae60',  # Green
+        '#f39c12',  # Orange
+        '#e91e63',  # Pink
+        '#95a5a6',  # Gray
+        '#1abc9c',  # Teal
+        '#34495e',  # Dark Blue
+        '#ff6b6b',  # Light Red
+        '#2ecc71',  # Emerald
+        '#f1c40f',  # Yellow
+    ]
+    
     def get_queryset(self):
         return Category.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        # Get used colors for this user
+        used_colors = Category.objects.filter(user=self.request.user).values_list('color', flat=True)
+        
+        # Find available colors
+        available_colors = [color for color in self.CATEGORY_COLORS if color not in used_colors]
+        
+        # If all colors are used, pick a random one
+        if not available_colors:
+            available_colors = self.CATEGORY_COLORS
+        
+        # Assign a random color from available colors
+        selected_color = random.choice(available_colors)
+        
+        # Save the category with the user and selected color
+        serializer.save(user=self.request.user, color=selected_color)
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategorySerializer
