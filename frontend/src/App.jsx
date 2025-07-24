@@ -63,19 +63,52 @@ function AuthProvider({ children }) {
   }, [])
 
   const login = async (username, password) => {
-    try {
-      const response = await axios.post('/auth/login/', { username, password })
-      const { access, user: userData } = response.data
-      setToken(access)
-      setUser(userData || { username }) // Use backend data or fallback to username
-      localStorage.setItem('token', access)
-      localStorage.setItem('username', username) // Store username for session persistence
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`
-      return { success: true }
-    } catch (error) {
-      return { success: false, error: error.response?.data?.detail || 'Login failed' }
-    }
+  try {
+    // Debug: Check what we're receiving
+    console.log('=== LOGIN DEBUG START ===');
+    console.log('Username received:', username);
+    console.log('Password received:', password);
+    console.log('Username type:', typeof username);
+    console.log('Password type:', typeof password);
+    
+    // Debug: Check axios configuration
+    console.log('Axios baseURL:', axios.defaults.baseURL);
+    console.log('Axios headers:', axios.defaults.headers);
+    
+    // Debug: Prepare request data
+    const requestData = { username, password };
+    console.log('Request data:', requestData);
+    console.log('Request data JSON:', JSON.stringify(requestData));
+    
+    // Make the actual request
+    console.log('Making request to: /auth/login/');
+    const response = await axios.post('/auth/login/', requestData);
+    
+    console.log('✅ Login response received:', response);
+    console.log('Response status:', response.status);
+    console.log('Response data:', response.data);
+    
+    const { access, user: userData } = response.data;
+    setToken(access);
+    setUser(userData || { username });
+    localStorage.setItem('token', access);
+    localStorage.setItem('username', username);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+    
+    console.log('=== LOGIN DEBUG END ===');
+    return { success: true };
+  } catch (error) {
+    console.log('❌ LOGIN ERROR DEBUG:');
+    console.log('Error object:', error);
+    console.log('Error response:', error.response);
+    console.log('Error response data:', error.response?.data);
+    console.log('Error response status:', error.response?.status);
+    console.log('Error message:', error.message);
+    console.log('=== LOGIN ERROR END ===');
+    
+    return { success: false, error: error.response?.data?.detail || 'Login failed' };
   }
+}
 
   const register = async (username, email, password, confirmPassword) => {
     try {
