@@ -77,13 +77,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'flowtrack_backend.wsgi.application'
 
 # Database Configuration
-if config('DATABASE_URL', default=None):
-    # Production database (PostgreSQL on Render)
+if 'DATABASE_URL' in os.environ:
     DATABASES = {
-        'default': dj_database_url.parse(config('DATABASE_URL'))
+        'default': dj_database_url.parse(os.environ['DATABASE_URL'])
     }
 else:
-    # Development database (SQLite)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
