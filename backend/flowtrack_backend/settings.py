@@ -183,3 +183,22 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+def create_superuser():
+    from django.contrib.auth.models import User
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@example.com',
+            password='flowtrack_admin123'  # Use a secure password
+        )
+        print("Admin superuser created successfully!")
+
+if os.environ.get('CREATE_SUPERUSER') == 'true':
+    try:
+        # Import Django and setup
+        import django
+        django.setup()
+        create_superuser()
+    except Exception as e:
+        print(f"Superuser creation failed: {e}")
