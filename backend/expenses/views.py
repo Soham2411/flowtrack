@@ -19,12 +19,13 @@ def test_connection(request):
         'status': 'success'
     })
 
-@api_view(['GET'])
+@api_view(['GET', 'HEAD'])  # Add HEAD method
 @permission_classes([AllowAny])
 def health_check(request):
     return JsonResponse({
         'status': 'healthy',
-        'timestamp': timezone.now().isoformat()
+        'timestamp': timezone.now().isoformat(),
+        'service': 'FlowTrack Backend'
     })
 
 # Authentication Views
