@@ -700,15 +700,15 @@ setFilteredTransactions(filtered)
       <div className="charts-section">
         <div className="charts-grid">
           <div id="expense-pie-chart">
-            <CategoryBreakdownChart transactions={transactions} />
+            <CategoryBreakdownChart transactions={filteredTransactions} />
           </div>
           <div id="income-expense-bar-chart">
-            <IncomeVsExpensesChart transactions={transactions} />
+            <IncomeVsExpensesChart transactions={filteredTransactions} />
           </div>
         </div>
         <div className="chart-full-width">
           <div id="trend-line-chart">
-            <MonthlyTrendsChart transactions={transactions} />
+            <MonthlyTrendsChart transactions={filteredTransactions} />
           </div>
         </div>
       </div>
