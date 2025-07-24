@@ -506,28 +506,30 @@ function Dashboard() {
   }, [])
 
   useEffect(() => {
-  let filtered = transactions
+    if (selectedCategory === 'all') {
+      setFilteredTransactions(transactions)
+    } else {
+      setFilteredTransactions(transactions.filter(t => t.category_name === selectedCategory))
+    }
+  }, [selectedCategory, transactions])
 
-  // Filter by category
-  if (selectedCategory !== 'all') {
-    filtered = filtered.filter(t => t.category_name === selectedCategory)
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [categoriesRes, transactionsRes] = await Promise.all([
+        axios.get('/categories/'),
+        axios.get('/transactions/')
+      ])
+      setCategories(categoriesRes.data)
+      setTransactions(transactionsRes.data)
+      setError('')
+    } catch (error) {
+      setError('Failed to load data')
+      console.error('Error fetching data:', error)
+    } finally {
+      setLoading(false)
+    }
   }
-
-  // Filter by date range
-  if (dateRange && dateRange.start && dateRange.end) {
-    const startDate = new Date(dateRange.start)
-    const endDate = new Date(dateRange.end)
-    // Set end date to end of day to include transactions on end date
-    endDate.setHours(23, 59, 59, 999)
-    
-    filtered = filtered.filter(t => {
-      const transactionDate = new Date(t.date)
-      return transactionDate >= startDate && transactionDate <= endDate
-    })
-  }
-
-  setFilteredTransactions(filtered)
-}, [selectedCategory, transactions, dateRange]) 
 
   const handleCreateCategory = async (e) => {
     e.preventDefault()
@@ -581,9 +583,9 @@ function Dashboard() {
   }
 
   const calculateTotalsByType = () => {
-  const totals = { income: 0, expense: 0 }
-  filteredTransactions.forEach(transaction => {
-    totals[transaction.type] += parseFloat(transaction.amount)
+    const totals = { income: 0, expense: 0 }
+    filteredTransactions.forEach(transaction => {
+      totals[transaction.type] += parseFloat(transaction.amount)
     })
     return totals
   }
